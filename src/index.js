@@ -8,16 +8,17 @@ import { Provider } from "react-redux";
 import Counter from "./features/counter/Counter";
 import PostsList from "./features/posts/PostsList";
 import AddPostForm from "./features/posts/AddPostForm";
+import { fetchUsers } from "./features/users/usersSlice";
+
+store.dispatch(fetchUsers());
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
     <Provider store={store}>
       <Counter />
       <PostsList />
       <AddPostForm />
     </Provider>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

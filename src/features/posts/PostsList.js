@@ -1,34 +1,57 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
-import React from "react";
-import { selectAllPosts } from "./postsSlice";
+import React, { useEffect } from "react";
+import {
+  selectAllPosts,
+  getPostError,
+  getPostStatus,
+  fetchPosts,
+} from "./postsSlice";
 import PostAuthor from "./PostAuthor";
 import TimeAgo from "./TimeAgo";
 import ReactionButtons from "./ReactionButtons";
 
 const PostsList = () => {
+  const dispatch = useDispatch();
+
   const posts = useSelector(selectAllPosts);
+  const postsStatus = useSelector(getPostStatus);
+  const postsError = useSelector(getPostError);
 
-  const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date));
+  useEffect(() => {
+    if (postsStatus === "idle") {
+      dispatch(fetchPosts());
+    }
+  }, [dispatch, postsStatus]);
 
-  const renderedPosts = orderedPosts.map((post) => (
-    <article key={post.id}>
-      <h3>{post.title}</h3>
-      <p>{post.content.substring(0, 100)}</p>
-      <p>
-        <PostAuthor userId={post.userId} />
-        <TimeAgo timestamp={post.date} />
-      </p>
-      <div>
-        <ReactionButtons post={post} />
-      </div>
-    </article>
-  ));
+  let content;
+  if (postsStatus === "loading") {
+    content = <p>"Loading..."</p>;
+  } else if (postsStatus === "succeeded") {
+    const orderedPosts = posts
+      .slice()
+      .sort((a, b) => b.date.localeCompare(a.date));
+    content = orderedPosts.map((post) => (
+      <article key={post.id}>
+        <h3>{post.title}</h3>
+        <p>{post.body.substring(0)}</p>
+        <p>
+          <PostAuthor userId={post.userId} />
+          <TimeAgo timestamp={post.date} />
+        </p>
+        <div>
+          <ReactionButtons post={post} />
+        </div>
+      </article>
+    ));
+  } else if (postsStatus === 'failed') {
+    content = <p>{postsError}</p>
+  }
 
   return (
     <section>
       <h2>Posts</h2>
-      {renderedPosts}
+      {content}
     </section>
   );
 };
