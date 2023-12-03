@@ -7,10 +7,7 @@ import {
   getPostStatus,
   fetchPosts,
 } from "./postsSlice";
-import PostAuthor from "./PostAuthor";
-import TimeAgo from "./TimeAgo";
-import ReactionButtons from "./ReactionButtons";
-import { Link } from "react-router-dom";
+import PostExcerpt from "./PostExcerpt";
 
 const PostsList = () => {
   const dispatch = useDispatch();
@@ -33,28 +30,13 @@ const PostsList = () => {
       .slice()
       .sort((a, b) => b.date.localeCompare(a.date));
     content = orderedPosts.map((post) => (
-      <article key={post.id}>
-        <h2>{post.title}</h2>
-        <p>{post.body.substring(0)}</p>
-        <p>
-          <Link to={`post/${post.id}`}>View Post</Link>&nbsp;
-          <PostAuthor userId={post.userId} />
-          <TimeAgo timestamp={post.date} />
-        </p>
-        <div>
-          <ReactionButtons post={post} />
-        </div>
-      </article>
+      <PostExcerpt key={post.id} post={post} />
     ));
   } else if (postsStatus === "failed") {
     content = <p>{postsError}</p>;
   }
 
-  return (
-    <section>
-      {content}
-    </section>
-  );
+  return <section>{content}</section>;
 };
 
 export default PostsList;
